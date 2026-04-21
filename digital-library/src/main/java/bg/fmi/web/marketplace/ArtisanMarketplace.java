@@ -1,13 +1,13 @@
-package bg.fmi.web.digital_library;
+package bg.fmi.web.marketplace;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DigitalLibraryApplication {
+public class ArtisanMarketplace {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DigitalLibraryApplication.class, args);
+		SpringApplication.run(ArtisanMarketplace.class, args);
 	}
 
 }

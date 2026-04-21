@@ -1,10 +1,10 @@
-package bg.fmi.web.digital_library;
+package bg.fmi.web.marketplace;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DigitalLibraryApplicationTests {
+class ArtisanMarketplaceApplicationTests {
 
 	@Test
 	void contextLoads() {
