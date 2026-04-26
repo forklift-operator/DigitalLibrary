@@ -1,0 +1,538 @@
+{
+  "info": {
+    "name": "Art Marektpalce",
+    "description": null,
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "get all users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/users",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "get user by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/users/1",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "create user",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/users",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\" : \"Ivan\",\n  \"lastName\" : \"Ivanov\",\n  \"password\" : \"qwiocpwpichn'wpivoqjc2e\",\n  \"email\" : \"ivan.ivanov@mail.com\",\n  \"role\" : \"USER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "poducts",
+      "item": [
+        {
+          "name": "get all products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/products",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "get products by type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/products?type=pot",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products?type=pot"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "pot"
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "get product by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/1",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "get all poducts by user id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/users/1/products",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "1",
+                "products"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "create product",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/products",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\" : \"pot\",\n  \"price\" : 5.25,\n  \"quanity\" : 10,\n  \"location\" : \"Sofia, Bulgaria\",\n  \"description\" : \"This is a handmade pot. It is has partiqular color pattern but every pot is uniqe, because it is hand painted\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "alter product quantity",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/products/1",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\" : 15\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "alter product price",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/products",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\" : 15\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "delete product by id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/products/1",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "reviews",
+      "item": [
+        {
+          "name": "get all reviews of product by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/products/1/reviews",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1",
+                "reviews"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "give review to a product by id",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/products/1/reviews",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1",
+                "reviews"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\" : \"I'm very satisfied by the pot, it came in gerat condition, fast and the price is very affordable\",\n  \"starts\" : 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "alter review",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/products/1/reviews/1",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1",
+                "reviews",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\" : \"I'm very unsatisfied by the pot, it came broken\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "delete review by id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/reviews/1",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reviews",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "orders",
+      "item": [
+        {
+          "name": "make order",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "localhost:8080/api/v1/orders",
+              "protocol": "",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"items\": [\n    {\n      \"product_id\": 101,\n      \"quantity\": 1\n    },\n    {\n      \"product_id\": 102,\n      \"quantity\": 2\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "get all orders by user id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "  \"items\": [\n    {\n      \"product_id\": 101,\n      \"quantity\": 1\n    },\n    {\n      \"product_id\": 102,\n      \"quantity\": 2\n    }\n  localhost:8080/api/v1/users/1/orders",
+              "protocol": "",
+              "host": [
+                "  \"items\": [\n    {\n      \"product_id\": 101,\n      \"quantity\": 1\n    },\n    {\n      \"product_id\": 102,\n      \"quantity\": 2\n    }\n  localhost:8080"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "1",
+                "orders"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": []
+}
