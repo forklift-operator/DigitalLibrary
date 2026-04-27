@@ -1,10 +1,13 @@
 package bg.fmi.web.marketplace.model.product;
 
 import bg.fmi.web.marketplace.model.review.Review;
+import bg.fmi.web.marketplace.model.user.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -25,4 +28,7 @@ public class Product {
     private String description;
     @OneToMany(mappedBy = "product")
     private List<Review> reviews;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }
