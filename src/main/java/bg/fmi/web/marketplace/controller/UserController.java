@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,7 @@ public class UserController {
 
     @GetMapping("/users")
     public List<UserResponseDto> getUsers() {
+
         return userService.getAllUsers().stream()
                 .map(user -> {
                     UserResponseDto userResponse = new UserResponseDto();
@@ -42,10 +44,12 @@ public class UserController {
 
                     return userResponse;
                 }).toList();
+
     }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable @NotNull Long id) {
+
         User user = userService.getUserById(id);
 
         UserResponseDto userResponse = new UserResponseDto();
@@ -56,6 +60,7 @@ public class UserController {
         userResponse.setRole(user.getRole());
 
         return ResponseEntity.status(HttpStatus.OK).body(userResponse);
+
     }
 
     @PostMapping("/register")
@@ -80,6 +85,7 @@ public class UserController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+
     }
 
     @PostMapping("/login")
@@ -99,6 +105,14 @@ public class UserController {
         userResponse.setRole(loggedUser.getRole());
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(userResponse);
+
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable @NotNull Long id) {
+
+        userService.deleteUser(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
     }
 }
