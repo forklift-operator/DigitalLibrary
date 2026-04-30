@@ -27,8 +27,19 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public List<User> getUsers() {
-        return userService.getAllUsers();
+    public List<UserResponseDto> getUsers() {
+        return userService.getAllUsers().stream()
+                .map(user -> {
+                    UserResponseDto userResponse = new UserResponseDto();
+
+                    userResponse.setId(user.getId());
+                    userResponse.setLastName(user.getFirstName());
+                    userResponse.setFirstName(user.getFirstName());
+                    userResponse.setEmail(user.getEmail());
+                    userResponse.setRole(user.getRole());
+
+                    return userResponse;
+                }).toList();
     }
 
     @PostMapping("/register")
