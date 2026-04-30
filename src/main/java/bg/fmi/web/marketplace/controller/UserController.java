@@ -3,6 +3,7 @@ package bg.fmi.web.marketplace.controller;
 import bg.fmi.web.marketplace.dto.UserRegisterDto;
 import bg.fmi.web.marketplace.dto.UserLoginDto;
 import bg.fmi.web.marketplace.dto.UserResponseDto;
+import bg.fmi.web.marketplace.mapper.UserMapper;
 import bg.fmi.web.marketplace.model.user.User;
 import bg.fmi.web.marketplace.service.UserService;
 import jakarta.validation.constraints.NotNull;
@@ -33,31 +34,16 @@ public class UserController {
     public List<UserResponseDto> getUsers() {
 
         return userService.getAllUsers().stream()
-                .map(user -> {
-                    UserResponseDto userResponse = new UserResponseDto();
-
-                    userResponse.setId(user.getId());
-                    userResponse.setLastName(user.getFirstName());
-                    userResponse.setFirstName(user.getFirstName());
-                    userResponse.setEmail(user.getEmail());
-                    userResponse.setRole(user.getRole());
-
-                    return userResponse;
-                }).toList();
+                .map(UserMapper::toUserResponseFromUserEntity).toList();
 
     }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable @NotNull Long id) {
 
-        User user = userService.getUserById(id);
+        User exitingUser = userService.getUserById(id);
 
-        UserResponseDto userResponse = new UserResponseDto();
-        userResponse.setId(user.getId());
-        userResponse.setFirstName(user.getFirstName());
-        userResponse.setLastName(userResponse.getLastName());
-        userResponse.setEmail(user.getEmail());
-        userResponse.setRole(user.getRole());
+        UserResponseDto userResponse = UserMapper.toUserResponseFromUserEntity(exitingUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(userResponse);
 
@@ -66,23 +52,11 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> register(@RequestBody @Validated UserRegisterDto dto) {
 
-        User userRequest = new User();
-
-        userRequest.setEmail(dto.getEmail());
-        userRequest.setFirstName(dto.getFirstName());
-        userRequest.setLastName(dto.getLastName());
-        userRequest.setPassword(dto.getPassword());
-        userRequest.setRole(dto.getRole());
+        User userRequest = UserMapper.toUserEntityFromRegisterDto(dto);
 
         User savedUser = userService.register(userRequest);
 
-        UserResponseDto userResponse = new UserResponseDto(
-                savedUser.getId(),
-                savedUser.getFirstName(),
-                savedUser.getLastName(),
-                savedUser.getEmail(),
-                savedUser.getRole()
-        );
+        UserResponseDto userResponse = UserMapper.toUserResponseFromUserEntity(savedUser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
 
@@ -97,12 +71,7 @@ public class UserController {
 
         User loggedUser = userService.login(userRequest);
 
-        UserResponseDto userResponse = new UserResponseDto();
-        userResponse.setId(loggedUser.getId());
-        userResponse.setEmail(loggedUser.getEmail());
-        userResponse.setFirstName(loggedUser.getFirstName());
-        userResponse.setLastName(loggedUser.getLastName());
-        userResponse.setRole(loggedUser.getRole());
+        UserResponseDto userResponse = UserMapper.toUserResponseFromUserEntity(loggedUser);
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(userResponse);
 
