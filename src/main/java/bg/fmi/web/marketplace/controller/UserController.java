@@ -1,6 +1,7 @@
 package bg.fmi.web.marketplace.controller;
 
 import bg.fmi.web.marketplace.dto.RegisterUserDto;
+import bg.fmi.web.marketplace.dto.UserRegisterDto;
 import bg.fmi.web.marketplace.dto.UserResponseDto;
 import bg.fmi.web.marketplace.model.user.User;
 import bg.fmi.web.marketplace.service.UserService;
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDto> register(@RequestBody @Validated RegisterUserDto dto) {
+    public ResponseEntity<UserResponseDto> register(@RequestBody @Validated UserRegisterDto dto) {
 
         User userRequest = new User();
 
