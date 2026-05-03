@@ -12,7 +12,7 @@ import bg.fmi.web.marketplace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -34,34 +34,59 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Order order = new Order();
-        order.setOrderDate(LocalDate.now());
         order.setStatus(Status.PENDING);
+        order.setTotalAmount(0.0);
         order.setUser(user);
 
         return orderRepository.save(order);
     }
 
-    public Order addProductToOrder(Long orderId, Long productId, Integer quantity) {
+    public Order updateOrder(Long orderId, Long productId, Integer quantity) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        OrderItem orderItem = orderItemRepository.findByOrderIdAndProductId(order.getId())
-                .orElseGet(() -> {
-                    OrderItem newItem = new OrderItem();
-                    newItem.setOrder(order);
-                    newItem.setProduct(product);
-                    newItem.setPrice(product.getPrice());
-                    newItem.setQuantity(0);
-                    return newItem;
+        Optional<OrderItem> existingItem = orderItemRepository.findByOrderIdAndProductId(orderId, productId);
+
+        System.out.println("ProdID: " + productId + " | ordID: " + orderId);
+
+        existingItem.ifPresentOrElse(item -> {
+                    if (quantity <= 0) {
+                        System.out.println("ITEM IS PRESENT AND QUANTITY IS <= 0");
+
+                        order.setTotalAmount(order.getTotalAmount() - item.getPrice() * item.getQuantity());
+                        order.getItems().remove(item);
+
+                        orderItemRepository.delete(item);
+                    } else {
+                        System.out.println("ITEM IS PRESENT AND QUANTITY IS POSITIVE");
+
+                        Double priceDifference = item.getPrice() * (quantity - item.getQuantity());
+                        item.setQuantity(quantity);
+
+                        order.setTotalAmount(order.getTotalAmount() + priceDifference);
+
+                        orderItemRepository.save(item);
+                    }
+                },
+
+                () -> {
+                    System.out.println("ITEM IS NOT PRESENT");
+                    if (quantity > 0) {
+                        OrderItem item = new OrderItem();
+                        item.setOrder(order);
+                        item.setProduct(product);
+                        item.setPrice(product.getPrice());
+                        item.setQuantity(quantity);
+
+                        order.setTotalAmount(order.getTotalAmount() + item.getPrice() * quantity);
+                        order.getItems().add(item);
+
+                        orderItemRepository.save(item);
+                    }
                 });
-
-        orderItem.setQuantity(orderItem.getQuantity() + quantity);
-        orderItemRepository.save(orderItem);
-
-        order.setTotalAmount(order.getTotalAmount() * quantity + order.getTotalAmount());
 
         return orderRepository.save(order);
     }
