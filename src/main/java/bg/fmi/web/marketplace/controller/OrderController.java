@@ -1,15 +1,13 @@
 package bg.fmi.web.marketplace.controller;
 
-import bg.fmi.web.marketplace.dto.OrderItemDto;
+import bg.fmi.web.marketplace.dto.OrderItemResponseDto;
 import bg.fmi.web.marketplace.dto.OrderResponseDto;
 import bg.fmi.web.marketplace.dto.UpdateOrderRequestDto;
 import bg.fmi.web.marketplace.model.order.Order;
 import bg.fmi.web.marketplace.model.order.Status;
 import bg.fmi.web.marketplace.service.OrderService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +45,7 @@ public class OrderController {
         orderResponseDto.setId(order.getId());
         orderResponseDto.setStatus(Status.PENDING);
         orderResponseDto.setItems(order.getItems().stream()
-                .map(orderItem -> new OrderItemDto(orderItem.getProduct().getId(), orderItem.getPrice(), orderItem.getQuantity()))
+                .map(orderItem -> new OrderItemResponseDto(orderItem.getProduct().getId(), orderItem.getPrice(), orderItem.getQuantity()))
                 .toList());
         orderResponseDto.setTotalAmount(order.getTotalAmount());
 
