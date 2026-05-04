@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateOrderRequestDto {
-    @NotNull(message = "Order id is required")
-    private Long orderId;
     @NotNull(message = "Product id is required")
     private Long productId;
     @NotNull(message = "Quantity is required")

@@ -11,6 +11,7 @@ import bg.fmi.web.marketplace.repository.ProductRepository;
 import bg.fmi.web.marketplace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -41,6 +42,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    @Transactional
     public Order updateOrder(Long orderId, Long productId, Integer quantity) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -91,5 +93,34 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    @Transactional
+    public Order completeOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // need to check for owner
+
+        if (order.getStatus() == Status.COMPLETED) {
+            throw new RuntimeException("Order has already been completed");
+        }
+
+        // set product quantity to be prev q - items from the order
+        order.getItems().forEach(orderItem -> {
+            Product product = productRepository.findById(orderItem.getProduct().getId())
+                    .orElseThrow(() -> new RuntimeException("Product not available"));
+            int newQuantity = product.getQuantity() - orderItem.getQuantity();
+            if (newQuantity < 0) {
+                throw new RuntimeException("There is not enough of PRODUCT: " + product.getId());
+            }
+            product.setQuantity(newQuantity);
+            productRepository.save(product);
+        });
+
+        order.setStatus(Status.COMPLETED);
+
+        orderRepository.save(order);
+
+        return order;
+    }
 }
 
