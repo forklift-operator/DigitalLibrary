@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,16 +32,21 @@ public class OrderService {
         this.productRepository = productRepository;
     }
 
+    @Transactional
     public Order createNewOrder(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        return orderRepository.findByUserIdAndStatus(userId, Status.PENDING)
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Order order = new Order();
-        order.setStatus(Status.PENDING);
-        order.setTotalAmount(0.0);
-        order.setUser(user);
+                    Order newOrder = new Order();
+                    newOrder.setUser(user);
+                    newOrder.setStatus(Status.PENDING);
+                    newOrder.setTotalAmount(0.0);
+                    newOrder.setItems(List.of());
 
-        return orderRepository.save(order);
+                    return orderRepository.save(newOrder);
+                });
     }
 
     @Transactional
@@ -51,8 +58,6 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         Optional<OrderItem> existingItem = orderItemRepository.findByOrderIdAndProductId(orderId, productId);
-
-        System.out.println("ProdID: " + productId + " | ordID: " + orderId);
 
         existingItem.ifPresentOrElse(item -> {
                     if (quantity <= 0) {
@@ -117,10 +122,19 @@ public class OrderService {
         });
 
         order.setStatus(Status.COMPLETED);
+        order.setOrderDate(LocalDate.now());
 
-        orderRepository.save(order);
-
-        return order;
+        return orderRepository.save(order);
     }
+
+    public Order cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        order.setStatus(Status.CANCELED);
+
+        return orderRepository.save(order);
+    }
+
 }
 
