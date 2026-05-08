@@ -1,5 +1,7 @@
 package bg.fmi.web.marketplace.service;
 
+import bg.fmi.web.marketplace.exception.InvalidStateOfResourceException;
+import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
 import bg.fmi.web.marketplace.model.order.Order;
 import bg.fmi.web.marketplace.model.order.Status;
 import bg.fmi.web.marketplace.model.orderItem.OrderItem;
@@ -37,7 +39,7 @@ public class OrderService {
         return orderRepository.findByUserIdAndStatus(userId, Status.PENDING)
                 .orElseGet(() -> {
                     User user = userRepository.findById(userId)
-                            .orElseThrow(() -> new RuntimeException("User not found"));
+                            .orElseThrow(() -> new ResourceNotFoundException(User.class.getSimpleName(), userId));
 
                     Order newOrder = new Order();
                     newOrder.setUser(user);
@@ -52,10 +54,10 @@ public class OrderService {
     @Transactional
     public Order updateOrder(Long orderId, Long productId, Integer quantity) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(Product.class.getSimpleName(), productId));
 
         Optional<OrderItem> existingItem = orderItemRepository.findByOrderIdAndProductId(orderId, productId);
 
@@ -101,21 +103,21 @@ public class OrderService {
     @Transactional
     public Order completeOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
         // need to check for owner
 
         if (order.getStatus() == Status.COMPLETED) {
-            throw new RuntimeException("Order has already been completed");
+            throw new InvalidStateOfResourceException("Order has already been completed");
         }
 
         // set product quantity to be prev q - items from the order
         order.getItems().forEach(orderItem -> {
             Product product = productRepository.findById(orderItem.getProduct().getId())
-                    .orElseThrow(() -> new RuntimeException("Product not available"));
+                    .orElseThrow(() -> new ResourceNotFoundException(Product.class.getSimpleName(), orderItem.getProduct().getId()));
             int newQuantity = product.getQuantity() - orderItem.getQuantity();
             if (newQuantity < 0) {
-                throw new RuntimeException("There is not enough of PRODUCT: " + product.getId());
+                throw new InvalidStateOfResourceException("There is not enough items Product with id " + product.getId());
             }
             product.setQuantity(newQuantity);
             productRepository.save(product);
@@ -129,7 +131,7 @@ public class OrderService {
 
     public Order cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
         order.setStatus(Status.CANCELED);
 
