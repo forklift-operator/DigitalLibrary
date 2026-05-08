@@ -1,5 +1,8 @@
 package bg.fmi.web.marketplace.service;
 
+import bg.fmi.web.marketplace.exception.EmailAlreadyExistsException;
+import bg.fmi.web.marketplace.exception.InvalidCredentialsException;
+import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
 import bg.fmi.web.marketplace.model.user.User;
 import bg.fmi.web.marketplace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +25,7 @@ public class UserService {
 
         userRepository.findByEmail(user.getEmail())
                 .ifPresent(existingUser -> {
-                    throw new RuntimeException("User with this email already exists");
+                    throw new EmailAlreadyExistsException(user.getEmail());
                 });
 
 //        user.setPassword(encoder.encode(user.getPassword()));
@@ -40,23 +43,24 @@ public class UserService {
     public User login(User userRequest) {
 
         User foundUser = userRepository.findByEmail(userRequest.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email"));
+                .orElseThrow(InvalidCredentialsException::new);
 
         if (foundUser.getPassword().equals(userRequest.getPassword())) {
             return foundUser;
         } else {
-            throw new RuntimeException("Incorrect password");
+            throw new InvalidCredentialsException();
         }
 
     }
 
-    public User getUserById(Long id) {
+    public User getUserById(Long userId) {
 
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User with this id not found"));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(User.class.getSimpleName(), userId));
+
     }
 
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
     }
 }
