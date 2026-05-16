@@ -3,10 +3,10 @@ package bg.fmi.web.marketplace.controller;
 import bg.fmi.web.marketplace.dto.UserRegisterDto;
 import bg.fmi.web.marketplace.dto.UserLoginDto;
 import bg.fmi.web.marketplace.dto.UserResponseDto;
-import bg.fmi.web.marketplace.mapper.UserMapper;
 import bg.fmi.web.marketplace.model.user.User;
 import bg.fmi.web.marketplace.service.UserService;
 import jakarta.validation.constraints.NotNull;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,16 +25,19 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final ModelMapper modelMapper;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, ModelMapper modelMapper) {
         this.userService = userService;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping("/users")
     public List<UserResponseDto> getUsers() {
 
         return userService.getAllUsers().stream()
-                .map(UserMapper::toUserResponseFromUserEntity).toList();
+                .map(user -> modelMapper.map(user, UserResponseDto.class))
+                .toList();
 
     }
 
@@ -43,20 +46,20 @@ public class UserController {
 
         User exitingUser = userService.getUserById(id);
 
-        UserResponseDto userResponse = UserMapper.toUserResponseFromUserEntity(exitingUser);
+        UserResponseDto userResponseDto = modelMapper.map(exitingUser, UserResponseDto.class);
 
-        return ResponseEntity.status(HttpStatus.OK).body(userResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(userResponseDto);
 
     }
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> register(@RequestBody @Validated UserRegisterDto dto) {
 
-        User userRequest = UserMapper.toUserEntityFromRegisterDto(dto);
+        User userRequest = modelMapper.map(dto, User.class);
 
         User savedUser = userService.register(userRequest);
 
-        UserResponseDto userResponse = UserMapper.toUserResponseFromUserEntity(savedUser);
+        UserResponseDto userResponse = modelMapper.map(savedUser, UserResponseDto.class);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
 
@@ -65,13 +68,11 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserResponseDto> login(@RequestBody @Validated UserLoginDto dto) {
 
-        User userRequest = new User();
-        userRequest.setEmail(dto.getEmail());
-        userRequest.setPassword(dto.getPassword());
+        User userRequest = modelMapper.map(dto, User.class);
 
         User loggedUser = userService.login(userRequest);
 
-        UserResponseDto userResponse = UserMapper.toUserResponseFromUserEntity(loggedUser);
+        UserResponseDto userResponse = modelMapper.map(loggedUser, UserResponseDto.class);
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(userResponse);
 
