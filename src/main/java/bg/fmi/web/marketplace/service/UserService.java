@@ -6,19 +6,22 @@ import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
 import bg.fmi.web.marketplace.model.user.User;
 import bg.fmi.web.marketplace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class UserService {
+
     private final UserRepository userRepository;
+    private final PasswordEncoder encoder;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 
         this.userRepository = userRepository;
-
+        this.encoder = passwordEncoder;
     }
 
     public User register(User user) {
@@ -28,7 +31,7 @@ public class UserService {
                     throw new EmailAlreadyExistsException(user.getEmail());
                 });
 
-//        user.setPassword(encoder.encode(user.getPassword()));
+        user.setPassword(encoder.encode(user.getPassword()));
 
         return userRepository.save(user);
 
@@ -45,7 +48,8 @@ public class UserService {
         User foundUser = userRepository.findByEmail(userRequest.getEmail())
                 .orElseThrow(InvalidCredentialsException::new);
 
-        if (foundUser.getPassword().equals(userRequest.getPassword())) {
+
+        if (encoder.matches(userRequest.getPassword(), foundUser.getPassword())) {
             return foundUser;
         } else {
             throw new InvalidCredentialsException();
@@ -63,4 +67,5 @@ public class UserService {
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
     }
+
 }
