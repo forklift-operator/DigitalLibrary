@@ -5,8 +5,10 @@ import bg.fmi.web.marketplace.exception.EmailAlreadyExistsException;
 import bg.fmi.web.marketplace.exception.InvalidCredentialsException;
 import bg.fmi.web.marketplace.exception.InvalidStateOfResourceException;
 import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
+import bg.fmi.web.marketplace.exception.UnauthorisedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -41,5 +43,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
         ErrorResponse response = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(ServletRequestBindingException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorised(UnauthorisedException ex) {
+        ErrorResponse response = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 }

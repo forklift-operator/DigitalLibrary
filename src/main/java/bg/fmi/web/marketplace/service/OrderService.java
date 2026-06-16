@@ -63,9 +63,10 @@ public class OrderService {
     }
 
     @Transactional
-    public Order updateOrder(Long orderId, Long productId, Integer quantity) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
+    public Order updateOrder(Long userId, Long productId, Integer quantity) {
+        Order order = getPendingOrder(userId);
+//        Order order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
         if (order.getStatus() != Status.PENDING) {
             throw new InvalidStateOfResourceException("Cannot modify an order that is already " + order.getStatus());
@@ -78,7 +79,7 @@ public class OrderService {
             throw new InvalidStateOfResourceException("You cannot add your own product to your cart.");
         }
 
-        Optional<OrderItem> existingItem = orderItemRepository.findByOrderIdAndProductId(orderId, productId);
+        Optional<OrderItem> existingItem = orderItemRepository.findByOrderIdAndProductId(order.getId(), productId);
 
         existingItem.ifPresentOrElse(item -> {
                     if (quantity <= 0) {
@@ -120,11 +121,10 @@ public class OrderService {
     }
 
     @Transactional
-    public Order completeOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
-
-        // need to check for owner
+    public Order completeOrder(Long userId) {
+        Order order = getPendingOrder(userId);
+//        Order order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
         if (order.getStatus() == Status.COMPLETED) {
             throw new InvalidStateOfResourceException("Order has already been completed");
@@ -149,9 +149,10 @@ public class OrderService {
     }
 
     @Transactional
-    public Order cancelOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
+    public Order cancelOrder(Long userId) {
+        Order order = getPendingOrder(userId);
+//        Order order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
         if (order.getStatus() == Status.COMPLETED) {
             order.getItems().forEach(orderItem -> {

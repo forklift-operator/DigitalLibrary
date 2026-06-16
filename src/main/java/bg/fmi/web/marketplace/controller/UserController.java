@@ -5,6 +5,7 @@ import bg.fmi.web.marketplace.dto.UserLoginDto;
 import bg.fmi.web.marketplace.dto.UserResponseDto;
 import bg.fmi.web.marketplace.model.user.User;
 import bg.fmi.web.marketplace.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -53,7 +54,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDto> register(@RequestBody @Validated UserRegisterDto dto) {
+    public ResponseEntity<UserResponseDto> register(@RequestBody @Validated UserRegisterDto dto, HttpSession session) {
 
         User userRequest = modelMapper.map(dto, User.class);
 
@@ -61,18 +62,21 @@ public class UserController {
 
         UserResponseDto userResponse = modelMapper.map(savedUser, UserResponseDto.class);
 
+        session.setAttribute("USER_ID", userResponse.getId());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
 
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponseDto> login(@RequestBody @Validated UserLoginDto dto) {
-
+    public ResponseEntity<UserResponseDto> login(@RequestBody @Validated UserLoginDto dto, HttpSession session) {
         User userRequest = modelMapper.map(dto, User.class);
 
         User loggedUser = userService.login(userRequest);
 
         UserResponseDto userResponse = modelMapper.map(loggedUser, UserResponseDto.class);
+
+        session.setAttribute("USER_ID", userResponse.getId());
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(userResponse);
 
