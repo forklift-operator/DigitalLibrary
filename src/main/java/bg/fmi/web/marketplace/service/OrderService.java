@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +34,15 @@ public class OrderService {
         this.userRepository = userRepository;
         this.orderItemRepository = orderItemRepository;
         this.productRepository = productRepository;
+    }
+
+    @Transactional
+    public Order getPendingOrder(Long userId) {
+        return createNewOrder(userId);
+    }
+
+    public List<Order> getOrderHistory(Long userId) {
+        return orderRepository.findByUserIdAndStatusIn(userId, List.of(Status.COMPLETED, Status.CANCELED));
     }
 
     @Transactional
@@ -56,8 +67,16 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
+        if (order.getStatus() != Status.PENDING) {
+            throw new InvalidStateOfResourceException("Cannot modify an order that is already " + order.getStatus());
+        }
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException(Product.class.getSimpleName(), productId));
+
+        if (product.getUser().getId().equals(order.getUser().getId())) {
+            throw new InvalidStateOfResourceException("You cannot add your own product to your cart.");
+        }
 
         Optional<OrderItem> existingItem = orderItemRepository.findByOrderIdAndProductId(orderId, productId);
 
@@ -129,12 +148,20 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    @Transactional
     public Order cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
-        order.setStatus(Status.CANCELED);
+        if (order.getStatus() == Status.COMPLETED) {
+            order.getItems().forEach(orderItem -> {
+                Product product = orderItem.getProduct();
+                product.setQuantity(product.getQuantity() + orderItem.getQuantity());
+                productRepository.save(product);
+            });
+        }
 
+        order.setStatus(Status.CANCELED);
         return orderRepository.save(order);
     }
 
