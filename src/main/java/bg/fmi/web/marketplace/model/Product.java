@@ -1,7 +1,5 @@
-package bg.fmi.web.marketplace.model.product;
+package bg.fmi.web.marketplace.model;
 
-import bg.fmi.web.marketplace.model.review.Review;
-import bg.fmi.web.marketplace.model.user.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

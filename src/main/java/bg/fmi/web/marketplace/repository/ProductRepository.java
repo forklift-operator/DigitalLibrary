@@ -1,6 +1,6 @@
 package bg.fmi.web.marketplace.repository;
 
-import bg.fmi.web.marketplace.model.product.Product;
+import bg.fmi.web.marketplace.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

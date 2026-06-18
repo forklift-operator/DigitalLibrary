@@ -2,11 +2,10 @@ package bg.fmi.web.marketplace.service;
 
 import bg.fmi.web.marketplace.dto.FilterDto;
 import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
-import bg.fmi.web.marketplace.model.product.Product;
-import bg.fmi.web.marketplace.model.user.User;
+import bg.fmi.web.marketplace.model.Product;
+import bg.fmi.web.marketplace.model.User;
 import bg.fmi.web.marketplace.repository.ProductRepository;
 import bg.fmi.web.marketplace.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -74,6 +73,4 @@ public class ProductService {
 
         return productRepository.findAll(spec);
     }
-
-
 }

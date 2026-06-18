@@ -2,11 +2,11 @@ package bg.fmi.web.marketplace.service;
 
 import bg.fmi.web.marketplace.exception.InvalidStateOfResourceException;
 import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
-import bg.fmi.web.marketplace.model.order.Order;
-import bg.fmi.web.marketplace.model.order.Status;
-import bg.fmi.web.marketplace.model.orderItem.OrderItem;
-import bg.fmi.web.marketplace.model.product.Product;
-import bg.fmi.web.marketplace.model.user.User;
+import bg.fmi.web.marketplace.model.Order;
+import bg.fmi.web.marketplace.model.Status;
+import bg.fmi.web.marketplace.model.OrderItem;
+import bg.fmi.web.marketplace.model.Product;
+import bg.fmi.web.marketplace.model.User;
 import bg.fmi.web.marketplace.repository.OrderItemRepository;
 import bg.fmi.web.marketplace.repository.OrderRepository;
 import bg.fmi.web.marketplace.repository.ProductRepository;
@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 

@@ -1,4 +1,4 @@
-package bg.fmi.web.marketplace.model.user;
+package bg.fmi.web.marketplace.model;
 
 public enum Role {
     ADMIN,

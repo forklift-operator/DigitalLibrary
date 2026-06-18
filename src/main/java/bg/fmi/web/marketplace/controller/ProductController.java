@@ -4,7 +4,7 @@ import bg.fmi.web.marketplace.dto.FilterDto;
 import bg.fmi.web.marketplace.dto.ProductCreateDto;
 import bg.fmi.web.marketplace.dto.ProductFullResponse;
 import bg.fmi.web.marketplace.dto.ProductResponseDto;
-import bg.fmi.web.marketplace.model.product.Product;
+import bg.fmi.web.marketplace.model.Product;
 import bg.fmi.web.marketplace.service.ProductService;
 import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;

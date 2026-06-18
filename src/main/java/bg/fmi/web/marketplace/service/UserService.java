@@ -1,7 +1,7 @@
 package bg.fmi.web.marketplace.service;
 
 import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
-import bg.fmi.web.marketplace.model.user.User;
+import bg.fmi.web.marketplace.model.User;
 import bg.fmi.web.marketplace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

@@ -1,8 +1,5 @@
-package bg.fmi.web.marketplace.model.user;
+package bg.fmi.web.marketplace.model;
 
-import bg.fmi.web.marketplace.model.order.Order;
-import bg.fmi.web.marketplace.model.product.Product;
-import bg.fmi.web.marketplace.model.review.Review;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

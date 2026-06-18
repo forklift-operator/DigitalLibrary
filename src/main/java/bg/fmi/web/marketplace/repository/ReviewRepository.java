@@ -1,6 +1,6 @@
 package bg.fmi.web.marketplace.repository;
 
-import bg.fmi.web.marketplace.model.review.Review;
+import bg.fmi.web.marketplace.model.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

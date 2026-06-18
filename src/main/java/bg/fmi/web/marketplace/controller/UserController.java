@@ -1,7 +1,7 @@
 package bg.fmi.web.marketplace.controller;
 
 import bg.fmi.web.marketplace.dto.UserResponseDto;
-import bg.fmi.web.marketplace.model.user.User;
+import bg.fmi.web.marketplace.model.User;
 import bg.fmi.web.marketplace.service.UserService;
 import jakarta.validation.constraints.NotNull;
 import org.modelmapper.ModelMapper;

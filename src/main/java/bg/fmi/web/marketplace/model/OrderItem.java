@@ -1,7 +1,5 @@
-package bg.fmi.web.marketplace.model.review;
+package bg.fmi.web.marketplace.model;
 
-import bg.fmi.web.marketplace.model.product.Product;
-import bg.fmi.web.marketplace.model.user.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,17 +11,21 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "reviews")
-public class Review {
+@Table(name = "order_items")
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String text;
-    private Integer starts;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
+
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+
+    private Double price;
+
+    private Integer quantity;
 }

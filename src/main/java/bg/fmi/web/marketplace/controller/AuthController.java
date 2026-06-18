@@ -3,7 +3,7 @@ package bg.fmi.web.marketplace.controller;
 import bg.fmi.web.marketplace.dto.UserLoginDto;
 import bg.fmi.web.marketplace.dto.UserRegisterDto;
 import bg.fmi.web.marketplace.dto.UserResponseDto;
-import bg.fmi.web.marketplace.model.user.User;
+import bg.fmi.web.marketplace.model.User;
 import bg.fmi.web.marketplace.repository.UserRepository;
 import bg.fmi.web.marketplace.service.AuthService;
 import jakarta.servlet.http.HttpSession;

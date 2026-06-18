@@ -1,6 +1,6 @@
 package bg.fmi.web.marketplace.dto;
 
-import bg.fmi.web.marketplace.model.user.Role;
+import bg.fmi.web.marketplace.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

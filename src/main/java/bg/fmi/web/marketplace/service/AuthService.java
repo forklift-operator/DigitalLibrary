@@ -2,7 +2,7 @@ package bg.fmi.web.marketplace.service;
 
 import bg.fmi.web.marketplace.exception.EmailAlreadyExistsException;
 import bg.fmi.web.marketplace.exception.InvalidCredentialsException;
-import bg.fmi.web.marketplace.model.user.User;
+import bg.fmi.web.marketplace.model.User;
 import bg.fmi.web.marketplace.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

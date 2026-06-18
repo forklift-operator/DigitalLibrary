@@ -1,6 +1,6 @@
 package bg.fmi.web.marketplace.dto;
 
-import bg.fmi.web.marketplace.model.user.Role;
+import bg.fmi.web.marketplace.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

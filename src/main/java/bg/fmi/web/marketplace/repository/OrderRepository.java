@@ -1,7 +1,7 @@
 package bg.fmi.web.marketplace.repository;
 
-import bg.fmi.web.marketplace.model.order.Order;
-import bg.fmi.web.marketplace.model.order.Status;
+import bg.fmi.web.marketplace.model.Order;
+import bg.fmi.web.marketplace.model.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

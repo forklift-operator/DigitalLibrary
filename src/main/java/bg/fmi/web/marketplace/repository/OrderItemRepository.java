@@ -1,6 +1,6 @@
 package bg.fmi.web.marketplace.repository;
 
-import bg.fmi.web.marketplace.model.orderItem.OrderItem;
+import bg.fmi.web.marketplace.model.OrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

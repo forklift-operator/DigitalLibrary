@@ -1,7 +1,5 @@
-package bg.fmi.web.marketplace.model.order;
+package bg.fmi.web.marketplace.model;
 
-import bg.fmi.web.marketplace.model.orderItem.OrderItem;
-import bg.fmi.web.marketplace.model.user.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

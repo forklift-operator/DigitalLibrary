@@ -1,6 +1,6 @@
 package bg.fmi.web.marketplace.dto;
 
-import bg.fmi.web.marketplace.model.order.Status;
+import bg.fmi.web.marketplace.model.Status;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
