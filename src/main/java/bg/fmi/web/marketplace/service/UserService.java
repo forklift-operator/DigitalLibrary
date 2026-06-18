@@ -1,7 +1,5 @@
 package bg.fmi.web.marketplace.service;
 
-import bg.fmi.web.marketplace.exception.EmailAlreadyExistsException;
-import bg.fmi.web.marketplace.exception.InvalidCredentialsException;
 import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
 import bg.fmi.web.marketplace.model.user.User;
 import bg.fmi.web.marketplace.repository.UserRepository;
@@ -15,45 +13,16 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder encoder;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-
         this.userRepository = userRepository;
-        this.encoder = passwordEncoder;
     }
 
-    public User register(User user) {
-
-        userRepository.findByEmail(user.getEmail())
-                .ifPresent(existingUser -> {
-                    throw new EmailAlreadyExistsException(user.getEmail());
-                });
-
-        user.setPassword(encoder.encode(user.getPassword()));
-
-        return userRepository.save(user);
-
-    }
 
     public List<User> getAllUsers() {
 
         return userRepository.findAll();
-
-    }
-
-    public User login(User userRequest) {
-
-        User foundUser = userRepository.findByEmail(userRequest.getEmail())
-                .orElseThrow(InvalidCredentialsException::new);
-
-
-        if (encoder.matches(userRequest.getPassword(), foundUser.getPassword())) {
-            return foundUser;
-        } else {
-            throw new InvalidCredentialsException();
-        }
 
     }
 
