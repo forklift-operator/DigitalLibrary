@@ -2,6 +2,12 @@ package bg.fmi.web.marketplace.repository;
 
 import bg.fmi.web.marketplace.model.product.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+import java.util.Optional;
+
+public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
+    Optional<Product> findByName(String name);
+
+    <T> ScopedValue<T> name(String name);
 }
