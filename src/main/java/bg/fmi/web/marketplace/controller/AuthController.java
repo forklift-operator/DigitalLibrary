@@ -40,9 +40,8 @@ public class AuthController {
         UserResponseDto userResponse = modelMapper.map(loggedUser, UserResponseDto.class);
 
         session.setAttribute("USER_ID", userResponse.getId());
-
+        session.setMaxInactiveInterval(-1);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(userResponse);
-
     }
 
 

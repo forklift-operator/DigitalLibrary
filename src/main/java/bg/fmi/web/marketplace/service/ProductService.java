@@ -2,8 +2,9 @@ package bg.fmi.web.marketplace.service;
 
 import bg.fmi.web.marketplace.dto.FilterDto;
 import bg.fmi.web.marketplace.dto.ProductFullResponse;
-import bg.fmi.web.marketplace.dto.ProductReqDto;
+import bg.fmi.web.marketplace.dto.ProductUpdateDto;
 import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
+import bg.fmi.web.marketplace.exception.UnauthorisedException;
 import bg.fmi.web.marketplace.model.Product;
 import bg.fmi.web.marketplace.model.User;
 import bg.fmi.web.marketplace.repository.ProductRepository;
@@ -48,6 +49,13 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException(Product.class.getSimpleName(), ""));
     }
 
+    public List<Product> getAllProductsByVendorId(Long vendorId) {
+        if (!userRepository.existsById(vendorId)) {
+            throw new ResourceNotFoundException(User.class.getSimpleName(), vendorId);
+        }
+        return productRepository.findByUserId(vendorId);
+    }
+
     public List<Product> getAllProducts(FilterDto filter) {
         Specification<Product> spec = Specification.where(
                 (root, query, cb) -> cb.conjunction()
@@ -90,7 +98,7 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public ProductFullResponse updateProduct(long id, ProductReqDto productReqDto) {
+    public ProductFullResponse updateProduct(long id, ProductUpdateDto productReqDto) {
         if (id < 0) {
             throw new IllegalArgumentException("Id cannot be less than zero");
         }
@@ -108,7 +116,20 @@ public class ProductService {
         product.setPrice(newPrice != null ? newPrice : product.getPrice());
         product.setQuantity(newQuantity != null ? newQuantity : product.getQuantity());
         product.setLocation(newLocation != null ? newLocation : product.getLocation());
+        productRepository.save(product);
 
         return mapper.map(product, ProductFullResponse.class);
+    }
+
+    public void deleteProduct(long productId, long userId) {
+        if (productId < 0) {
+            throw new IllegalArgumentException("Id cannot be less than zero");
+        }
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new ResourceNotFoundException(Product.class.getSimpleName(), productId));
+        if (product.getUser().getId() != userId) {
+            throw new UnauthorisedException();
+        }
+        productRepository.deleteById(productId);
     }
 }
