@@ -80,14 +80,14 @@ public class ProductService {
         return productRepository.findAll(spec);
     }
 
-    public Product updateQuantity(long id, int quantity) {
+    public void updateQuantity(long id, int quantity) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         Product product = optionalProduct.orElseThrow(() -> new ResourceNotFoundException(Product.class.getSimpleName(), id));
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantity cannot be less than zero");
         }
         product.setQuantity(quantity);
-        return product;
+        productRepository.save(product);
     }
 
     public ProductFullResponse updateProduct(long id, ProductReqDto productReqDto) {
