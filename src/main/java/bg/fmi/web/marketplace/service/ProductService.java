@@ -1,24 +1,30 @@
 package bg.fmi.web.marketplace.service;
 
 import bg.fmi.web.marketplace.dto.FilterDto;
+import bg.fmi.web.marketplace.dto.ProductFullResponse;
+import bg.fmi.web.marketplace.dto.ProductReqDto;
 import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
 import bg.fmi.web.marketplace.model.Product;
 import bg.fmi.web.marketplace.model.User;
 import bg.fmi.web.marketplace.repository.ProductRepository;
 import bg.fmi.web.marketplace.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final ModelMapper mapper;
 
-    public ProductService(ProductRepository productRepository, UserRepository userRepository) {
+    public ProductService(ProductRepository productRepository, UserRepository userRepository, ModelMapper mapper) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.mapper = mapper;
     }
 
 
@@ -72,5 +78,37 @@ public class ProductService {
         }
 
         return productRepository.findAll(spec);
+    }
+
+    public Product updateQuantity(long id, int quantity) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        Product product = optionalProduct.orElseThrow(() -> new ResourceNotFoundException(Product.class.getSimpleName(), id));
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be less than zero");
+        }
+        product.setQuantity(quantity);
+        return product;
+    }
+
+    public ProductFullResponse updateProduct(long id, ProductReqDto productReqDto) {
+        if (id < 0) {
+            throw new IllegalArgumentException("Id cannot be less than zero");
+        }
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(Product.class.getSimpleName(), id));
+        String newName = productReqDto.getName();
+
+        String newDescription = productReqDto.getDescription();
+        Double newPrice = productReqDto.getPrice();
+        Integer newQuantity = productReqDto.getQuantity();
+        String newLocation = productReqDto.getLocation();
+
+        product.setName(newName != null ? newName : product.getName());
+        product.setDescription(newDescription != null ? newDescription : product.getDescription());
+        product.setPrice(newPrice != null ? newPrice : product.getPrice());
+        product.setQuantity(newQuantity != null ? newQuantity : product.getQuantity());
+        product.setLocation(newLocation != null ? newLocation : product.getLocation());
+
+        return mapper.map(product, ProductFullResponse.class);
     }
 }

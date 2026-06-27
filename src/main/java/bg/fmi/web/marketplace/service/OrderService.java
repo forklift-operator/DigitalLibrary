@@ -9,7 +9,6 @@ import bg.fmi.web.marketplace.model.Product;
 import bg.fmi.web.marketplace.model.User;
 import bg.fmi.web.marketplace.repository.OrderItemRepository;
 import bg.fmi.web.marketplace.repository.OrderRepository;
-import bg.fmi.web.marketplace.repository.ProductRepository;
 import bg.fmi.web.marketplace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,15 +22,16 @@ import java.util.Optional;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
     private final UserRepository userRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository,
+                        OrderItemRepository orderItemRepository, ProductService productService) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.orderItemRepository = orderItemRepository;
-        this.productRepository = productRepository;
+        this.productService = productService;
     }
 
     @Transactional
@@ -46,32 +46,29 @@ public class OrderService {
     @Transactional
     public Order createNewOrder(Long userId) {
         return orderRepository.findByUserIdAndStatus(userId, Status.PENDING)
-                .orElseGet(() -> {
-                    User user = userRepository.findById(userId)
-                            .orElseThrow(() -> new ResourceNotFoundException(User.class.getSimpleName(), userId));
+            .orElseGet(() -> {
+                User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException(User.class.getSimpleName(), userId));
 
-                    Order newOrder = new Order();
-                    newOrder.setUser(user);
-                    newOrder.setStatus(Status.PENDING);
-                    newOrder.setTotalAmount(0.0);
-                    newOrder.setItems(List.of());
+                Order newOrder = new Order();
+                newOrder.setUser(user);
+                newOrder.setStatus(Status.PENDING);
+                newOrder.setTotalAmount(0.0);
+                newOrder.setItems(List.of());
 
-                    return orderRepository.save(newOrder);
-                });
+                return orderRepository.save(newOrder);
+            });
     }
 
     @Transactional
     public Order updateOrder(Long userId, Long productId, Integer quantity) {
         Order order = getPendingOrder(userId);
-//        Order order = orderRepository.findById(orderId)
-//                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
         if (order.getStatus() != Status.PENDING) {
             throw new InvalidStateOfResourceException("Cannot modify an order that is already " + order.getStatus());
         }
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException(Product.class.getSimpleName(), productId));
+        Product product = productService.getProduct(productId);
 
         if (product.getUser().getId().equals(order.getUser().getId())) {
             throw new InvalidStateOfResourceException("You cannot add your own product to your cart.");
@@ -80,40 +77,40 @@ public class OrderService {
         Optional<OrderItem> existingItem = orderItemRepository.findByOrderIdAndProductId(order.getId(), productId);
 
         existingItem.ifPresentOrElse(item -> {
-                    if (quantity <= 0) {
-                        System.out.println("ITEM IS PRESENT AND QUANTITY IS <= 0");
+                if (quantity <= 0) {
+                    System.out.println("ITEM IS PRESENT AND QUANTITY IS <= 0");
 
-                        order.setTotalAmount(order.getTotalAmount() - item.getPrice() * item.getQuantity());
-                        order.getItems().remove(item);
+                    order.setTotalAmount(order.getTotalAmount() - item.getPrice() * item.getQuantity());
+                    order.getItems().remove(item);
 
-                        orderItemRepository.delete(item);
-                    } else {
-                        System.out.println("ITEM IS PRESENT AND QUANTITY IS POSITIVE");
+                    orderItemRepository.delete(item);
+                } else {
+                    System.out.println("ITEM IS PRESENT AND QUANTITY IS POSITIVE");
 
-                        Double priceDifference = item.getPrice() * (quantity - item.getQuantity());
-                        item.setQuantity(quantity);
+                    Double priceDifference = item.getPrice() * (quantity - item.getQuantity());
+                    item.setQuantity(quantity);
 
-                        order.setTotalAmount(order.getTotalAmount() + priceDifference);
+                    order.setTotalAmount(order.getTotalAmount() + priceDifference);
 
-                        orderItemRepository.save(item);
-                    }
-                },
+                    orderItemRepository.save(item);
+                }
+            },
 
-                () -> {
-                    System.out.println("ITEM IS NOT PRESENT");
-                    if (quantity > 0) {
-                        OrderItem item = new OrderItem();
-                        item.setOrder(order);
-                        item.setProduct(product);
-                        item.setPrice(product.getPrice());
-                        item.setQuantity(quantity);
+            () -> {
+                System.out.println("ITEM IS NOT PRESENT");
+                if (quantity > 0) {
+                    OrderItem item = new OrderItem();
+                    item.setOrder(order);
+                    item.setProduct(product);
+                    item.setPrice(product.getPrice());
+                    item.setQuantity(quantity);
 
-                        order.setTotalAmount(order.getTotalAmount() + item.getPrice() * quantity);
-                        order.getItems().add(item);
+                    order.setTotalAmount(order.getTotalAmount() + item.getPrice() * quantity);
+                    order.getItems().add(item);
 
-                        orderItemRepository.save(item);
-                    }
-                });
+                    orderItemRepository.save(item);
+                }
+            });
 
         return orderRepository.save(order);
     }
@@ -121,8 +118,6 @@ public class OrderService {
     @Transactional
     public Order completeOrder(Long userId) {
         Order order = getPendingOrder(userId);
-//        Order order = orderRepository.findById(orderId)
-//                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
         if (order.getStatus() == Status.COMPLETED) {
             throw new InvalidStateOfResourceException("Order has already been completed");
@@ -130,14 +125,13 @@ public class OrderService {
 
         // set product quantity to be prev q - items from the order
         order.getItems().forEach(orderItem -> {
-            Product product = productRepository.findById(orderItem.getProduct().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(Product.class.getSimpleName(), orderItem.getProduct().getId()));
+            Product product = productService.getProduct(orderItem.getProduct().getId());
             int newQuantity = product.getQuantity() - orderItem.getQuantity();
             if (newQuantity < 0) {
-                throw new InvalidStateOfResourceException("There is not enough items Product with id " + product.getId());
+                throw new InvalidStateOfResourceException(
+                    "There is not enough items Product with id " + product.getId());
             }
-            product.setQuantity(newQuantity);
-            productRepository.save(product);
+            productService.updateQuantity(product.getId(), newQuantity);
         });
 
         order.setStatus(Status.COMPLETED);
@@ -149,14 +143,11 @@ public class OrderService {
     @Transactional
     public Order cancelOrder(Long userId) {
         Order order = getPendingOrder(userId);
-//        Order order = orderRepository.findById(orderId)
-//                .orElseThrow(() -> new ResourceNotFoundException(Order.class.getSimpleName(), orderId));
 
         if (order.getStatus() == Status.COMPLETED) {
             order.getItems().forEach(orderItem -> {
                 Product product = orderItem.getProduct();
-                product.setQuantity(product.getQuantity() + orderItem.getQuantity());
-                productRepository.save(product);
+                productService.updateQuantity(product.getId(), product.getQuantity() + orderItem.getQuantity());
             });
         }
 

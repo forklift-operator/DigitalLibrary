@@ -1,16 +1,19 @@
 package bg.fmi.web.marketplace.controller;
 
 import bg.fmi.web.marketplace.dto.FilterDto;
-import bg.fmi.web.marketplace.dto.ProductCreateDto;
 import bg.fmi.web.marketplace.dto.ProductFullResponse;
+import bg.fmi.web.marketplace.dto.ProductReqDto;
 import bg.fmi.web.marketplace.dto.ProductResponseDto;
 import bg.fmi.web.marketplace.model.Product;
 import bg.fmi.web.marketplace.service.ProductService;
 import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,14 +37,15 @@ public class ProductController {
         List<Product> allProducts = productService.getAllProducts(filter);
 
         List<ProductResponseDto> response = allProducts.stream()
-                .map(product -> modelMapper.map(product, ProductResponseDto.class))
-                .toList();
+            .map(product -> modelMapper.map(product, ProductResponseDto.class))
+            .toList();
 
         return ResponseEntity.status(200).body(response);
     }
 
     @PostMapping("/products")
-    public ResponseEntity<ProductFullResponse> addProduct(@RequestBody ProductCreateDto createDto, HttpSession session) {
+    public ResponseEntity<ProductFullResponse> addProduct(@RequestBody ProductReqDto createDto,
+                                                          HttpSession session) {
 
         Long userId = (Long) session.getAttribute("USER_ID");
 
@@ -50,5 +54,13 @@ public class ProductController {
         ProductFullResponse response = modelMapper.map(product, ProductFullResponse.class);
 
         return ResponseEntity.status(200).body(response);
+    }
+
+    @PatchMapping("/products/{id}")
+    public ResponseEntity<ProductFullResponse> updateProduct(@PathVariable Long id,
+                                                             @RequestBody @Validated ProductReqDto productReqDto) {
+        ProductFullResponse productFullResponse = productService.updateProduct(id, productReqDto);
+
+        return ResponseEntity.ok(productFullResponse);
     }
 }
