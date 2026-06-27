@@ -1,5 +1,7 @@
 package bg.fmi.web.marketplace.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +27,7 @@ public class Product {
     private String location;
     private String description;
     @OneToMany(mappedBy = "product")
+    @JsonManagedReference
     private List<Review> reviews;
     @ManyToOne
     @JoinColumn(name = "user_id")

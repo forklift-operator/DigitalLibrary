@@ -28,7 +28,7 @@ public class ReviewService {
     }
 
     public List<ReviewResponseDto> getAllReviewsForProduct(Long productId) {
-        return reviewRepository.getByProductId(productId)
+        return reviewRepository.findByProductId(productId)
             .stream()
             .map(reviewEntity -> mapper.map(reviewEntity, ReviewResponseDto.class))
             .toList();
@@ -61,7 +61,7 @@ public class ReviewService {
             reviewToAlter.setText(dto.getText());
         }
         if (dto.getStars() != null) {
-            reviewToAlter.setStarts(dto.getStars());
+            reviewToAlter.setStars(dto.getStars());
         }
 
         Review alteredReview = reviewRepository.save(reviewToAlter);

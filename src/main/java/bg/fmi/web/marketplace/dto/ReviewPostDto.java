@@ -17,7 +17,7 @@ public class ReviewPostDto {
     @Size(max = 250)
     private String text;
     @Range(min = 0, max = 5)
-    private Integer starts;
+    private Integer stars;
     @NotNull
     @PositiveOrZero
     private Integer userId;
