@@ -41,6 +41,7 @@ public class ReviewService {
         }
 
         Review review = mapper.map(dto, Review.class);
+        review.setId(null);
         review.setProduct(productToAddReview.get());
         reviewRepository.save(review);
         return mapper.map(review, ReviewResponseDto.class);

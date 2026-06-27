@@ -133,6 +133,8 @@ public class OrderService {
             }
             productService.updateQuantity(product.getId(), newQuantity);
         });
+//TODO sum the prices of the items and update the VENDOR's revenue
+//        order.getItems().
 
         order.setStatus(Status.COMPLETED);
         order.setOrderDate(LocalDate.now());

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/v1")
 public class ProductController {
@@ -40,7 +42,14 @@ public class ProductController {
             .map(product -> modelMapper.map(product, ProductResponseDto.class))
             .toList();
 
-        return ResponseEntity.status(200).body(response);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/products/{id}")
+    public ResponseEntity<ProductFullResponse> getProduct(@PathVariable Long id) {
+        Product product = productService.getProduct(id);
+        ProductFullResponse response = modelMapper.map(product, ProductFullResponse.class);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/products")
@@ -53,7 +62,7 @@ public class ProductController {
 
         ProductFullResponse response = modelMapper.map(product, ProductFullResponse.class);
 
-        return ResponseEntity.status(200).body(response);
+        return ResponseEntity.ok().body(response);
     }
 
     @PatchMapping("/products/{id}")
