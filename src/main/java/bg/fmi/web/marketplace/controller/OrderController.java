@@ -42,7 +42,22 @@ public class OrderController {
 
         OrderResponseDto orderResponseDto = modelMapper.map(order, OrderResponseDto.class);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderResponseDto);
+        if (order.getItems() != null) {
+            orderResponseDto.setItems(
+                    order.getItems().stream()
+                            .map(orderItem -> new OrderItemResponseDto(
+                                    orderItem.getProduct().getId(),
+                                    orderItem.getPrice(),
+                                    orderItem.getQuantity()
+                            ))
+                            .toList()
+            );
+        } else {
+            orderResponseDto.setItems(List.of());
+        }
+
+        // Changing status to OK since it's a GET request fetching data
+        return ResponseEntity.status(HttpStatus.OK).body(orderResponseDto);
     }
 
     @PutMapping("orders/update")
