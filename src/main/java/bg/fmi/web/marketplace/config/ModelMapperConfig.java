@@ -7,7 +7,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ModelMapperConfig {
     @Bean
-    public ModelMapper modelMapper(){
-        return new ModelMapper();
+    public ModelMapper modelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
+
+        modelMapper.getConfiguration()
+            .setAmbiguityIgnored(true)
+            .setFieldMatchingEnabled(true)
+            .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
+
+        return modelMapper;
     }
 }

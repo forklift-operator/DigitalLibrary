@@ -2,17 +2,22 @@ package bg.fmi.web.marketplace.service;
 
 import bg.fmi.web.marketplace.dto.FilterDto;
 import bg.fmi.web.marketplace.dto.ProductFullResponse;
+import bg.fmi.web.marketplace.dto.ProductReqDto;
 import bg.fmi.web.marketplace.dto.ProductUpdateDto;
 import bg.fmi.web.marketplace.exception.ResourceNotFoundException;
 import bg.fmi.web.marketplace.exception.UnauthorisedException;
 import bg.fmi.web.marketplace.model.Product;
+import bg.fmi.web.marketplace.model.Photo;
 import bg.fmi.web.marketplace.model.User;
 import bg.fmi.web.marketplace.repository.ProductRepository;
 import bg.fmi.web.marketplace.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,15 +33,59 @@ public class ProductService {
         this.mapper = mapper;
     }
 
-
-    public Product saveProduct(Product product, Long userId) {
+    public Product saveProduct(Product product, Long userId, java.util.List<org.springframework.web.multipart.MultipartFile> photosFiles) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(User.class.getSimpleName(), userId));
 
         product.setUser(user);
 
+        if (photosFiles != null && !photosFiles.isEmpty()) {
+            java.util.List<Photo> photos = photosFiles.stream().map(file -> {
+                try {
+                    Photo p = new Photo();
+                    p.setData(file.getBytes());
+                    p.setContentType(file.getContentType());
+                    p.setFilename(file.getOriginalFilename());
+                    p.setProduct(product);
+                    return p;
+                } catch (java.io.IOException e) {
+                    throw new IllegalArgumentException("Failed to read uploaded file", e);
+                }
+            }).toList();
+            product.setPhotos(photos);
+        }
+
         return productRepository.save(product);
     }
+
+    public ProductFullResponse createProduct(ProductReqDto productDto, MultipartFile[] photos) throws IOException {
+        Product product = new Product();
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+        product.setQuantity(productDto.getQuantity());
+        product.setLocation(productDto.getLocation());
+
+        List<Photo> photoEntities = new ArrayList<>();
+
+        if (photos != null) {
+            for (MultipartFile file : photos) {
+                if (file.isEmpty()) continue;
+
+                Photo photo = new Photo();
+                photo.setFilename(file.getOriginalFilename());
+                photo.setContentType(file.getContentType());
+                photo.setData(file.getBytes());
+                photo.setProduct(product);
+
+                photoEntities.add(photo);
+            }
+        }
+
+        product.setPhotos(photoEntities);
+        return mapper.map(productRepository.save(product), ProductFullResponse.class);
+    }
+
 
     public Product getProduct(Long id) {
         return productRepository.findById(id)
@@ -56,7 +105,7 @@ public class ProductService {
         return productRepository.findByUserId(vendorId);
     }
 
-    public List<Product> getAllProducts(FilterDto filter) {
+    public List<ProductFullResponse> getAllProducts(FilterDto filter) {
         Specification<Product> spec = Specification.where(
                 (root, query, cb) -> cb.conjunction()
         );
@@ -85,7 +134,11 @@ public class ProductService {
             }
         }
 
-        return productRepository.findAll(spec);
+        List<Product> all = productRepository.findAll(spec);
+
+        return all.stream()
+            .map(product -> mapper.map( product, ProductFullResponse.class))
+            .toList();
     }
 
     public void updateQuantity(long id, int quantity) {

@@ -14,6 +14,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.List;
 import java.util.Objects;
@@ -44,12 +46,18 @@ public class User {
     private Role role;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    @ToString.Exclude
     List<Product> products;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    @ToString.Exclude
     List<Order> orders;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    @ToString.Exclude
     List<Review> reviews;
 
     @Override

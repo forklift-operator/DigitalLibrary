@@ -3,13 +3,13 @@ package bg.fmi.web.marketplace.controller;
 import bg.fmi.web.marketplace.dto.FilterDto;
 import bg.fmi.web.marketplace.dto.ProductFullResponse;
 import bg.fmi.web.marketplace.dto.ProductReqDto;
-import bg.fmi.web.marketplace.dto.ProductResponseDto;
 import bg.fmi.web.marketplace.dto.ProductUpdateDto;
 import bg.fmi.web.marketplace.model.Product;
 import bg.fmi.web.marketplace.service.AuthService;
 import bg.fmi.web.marketplace.service.ProductService;
 import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -39,22 +41,18 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public ResponseEntity<List<ProductResponseDto>> getProducts(@ModelAttribute FilterDto filter, HttpSession session) {
-        List<Product> allProducts = productService.getAllProducts(filter);
+    public ResponseEntity<List<ProductFullResponse>> getProducts(@ModelAttribute FilterDto filter, HttpSession session) {
+        List<ProductFullResponse> allProducts = productService.getAllProducts(filter);
 
-        List<ProductResponseDto> response = allProducts.stream()
-            .map(product -> modelMapper.map(product, ProductResponseDto.class))
-            .toList();
-
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(allProducts);
     }
 
     @GetMapping("/products/vendor/{vendor_id}")
-    public ResponseEntity<List<ProductResponseDto>> getProductsByVendorId(@PathVariable Long vendor_id) {
+    public ResponseEntity<List<ProductFullResponse>> getProductsByVendorId(@PathVariable Long vendor_id) {
         List<Product> allProducts = productService.getAllProductsByVendorId(vendor_id);
 
-        List<ProductResponseDto> response = allProducts.stream()
-            .map(product -> modelMapper.map(product, ProductResponseDto.class))
+        List<ProductFullResponse> response = allProducts.stream()
+            .map(product -> modelMapper.map(product, ProductFullResponse.class))
             .toList();
 
         return ResponseEntity.ok().body(response);
@@ -67,16 +65,17 @@ public class ProductController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("/products")
-    public ResponseEntity<ProductFullResponse> addProduct(@RequestBody ProductReqDto createDto,
-                                                          HttpSession session) {
+    @PostMapping(value = "/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductFullResponse> addProductMultipart(@RequestPart("product") ProductReqDto createDto,
+                                                                   @RequestPart(name = "photos", required = false) List<MultipartFile> photos,
+                                                                   HttpSession session) {
 
         Long userId = (Long) session.getAttribute("USER_ID");
 
-        Product product = productService.saveProduct(modelMapper.map(createDto, Product.class), userId);
+        Product mapped = modelMapper.map(createDto, Product.class);
+        Product product = productService.saveProduct(mapped, userId, photos);
 
         ProductFullResponse response = modelMapper.map(product, ProductFullResponse.class);
-
         return ResponseEntity.ok().body(response);
     }
 
