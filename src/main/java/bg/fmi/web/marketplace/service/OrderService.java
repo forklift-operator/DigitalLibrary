@@ -46,18 +46,18 @@ public class OrderService {
     @Transactional
     public Order createNewOrder(Long userId) {
         return orderRepository.findByUserIdAndStatus(userId, Status.PENDING)
-            .orElseGet(() -> {
-                User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new ResourceNotFoundException(User.class.getSimpleName(), userId));
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new ResourceNotFoundException(User.class.getSimpleName(), userId));
 
-                Order newOrder = new Order();
-                newOrder.setUser(user);
-                newOrder.setStatus(Status.PENDING);
-                newOrder.setTotalAmount(0.0);
-                newOrder.setItems(List.of());
+                    Order newOrder = new Order();
+                    newOrder.setUser(user);
+                    newOrder.setStatus(Status.PENDING);
+                    newOrder.setTotalAmount(0.0);
+                    newOrder.setItems(new java.util.ArrayList<>());
 
-                return orderRepository.save(newOrder);
-            });
+                    return orderRepository.save(newOrder);
+                });
     }
 
     @Transactional
@@ -77,40 +77,50 @@ public class OrderService {
         Optional<OrderItem> existingItem = orderItemRepository.findByOrderIdAndProductId(order.getId(), productId);
 
         existingItem.ifPresentOrElse(item -> {
-                if (quantity <= 0) {
-                    System.out.println("ITEM IS PRESENT AND QUANTITY IS <= 0");
+                    if (quantity <= 0) {
+                        System.out.println("ITEM IS PRESENT AND QUANTITY IS <= 0");
 
-                    order.setTotalAmount(order.getTotalAmount() - item.getPrice() * item.getQuantity());
-                    order.getItems().remove(item);
+                        order.setTotalAmount(order.getTotalAmount() - item.getPrice() * item.getQuantity());
 
-                    orderItemRepository.delete(item);
-                } else {
-                    System.out.println("ITEM IS PRESENT AND QUANTITY IS POSITIVE");
+                        // FIX: Safely remove from collection
+                        order.getItems().removeIf(i -> i.getId().equals(item.getId()));
+                        orderItemRepository.delete(item);
+                    } else {
+                        System.out.println("ITEM IS PRESENT AND QUANTITY IS POSITIVE");
 
-                    Double priceDifference = item.getPrice() * (quantity - item.getQuantity());
-                    item.setQuantity(quantity);
+                        Double priceDifference = item.getPrice() * (quantity - item.getQuantity());
+                        item.setQuantity(quantity);
 
-                    order.setTotalAmount(order.getTotalAmount() + priceDifference);
+                        order.setTotalAmount(order.getTotalAmount() + priceDifference);
+                        orderItemRepository.save(item);
+                    }
+                },
+                () -> {
+                    System.out.println("ITEM IS NOT PRESENT");
+                    if (quantity > 0) {
+                        OrderItem item = new OrderItem();
+                        item.setOrder(order);
+                        item.setProduct(product);
+                        item.setPrice(product.getPrice());
+                        item.setQuantity(quantity);
 
-                    orderItemRepository.save(item);
-                }
-            },
+                        order.setTotalAmount(order.getTotalAmount() + item.getPrice() * quantity);
 
-            () -> {
-                System.out.println("ITEM IS NOT PRESENT");
-                if (quantity > 0) {
-                    OrderItem item = new OrderItem();
-                    item.setOrder(order);
-                    item.setProduct(product);
-                    item.setPrice(product.getPrice());
-                    item.setQuantity(quantity);
+                        // FIX: If the collection initialized lazily as unmodifiable, make it mutable
+                        if (order.getItems() == null) {
+                            order.setItems(new java.util.ArrayList<>());
+                        } else {
+                            try {
+                                order.getItems().add(item);
+                            } catch (UnsupportedOperationException e) {
+                                order.setItems(new java.util.ArrayList<>(order.getItems()));
+                                order.getItems().add(item);
+                            }
+                        }
 
-                    order.setTotalAmount(order.getTotalAmount() + item.getPrice() * quantity);
-                    order.getItems().add(item);
-
-                    orderItemRepository.save(item);
-                }
-            });
+                        orderItemRepository.save(item);
+                    }
+                });
 
         return orderRepository.save(order);
     }
@@ -118,6 +128,8 @@ public class OrderService {
     @Transactional
     public Order completeOrder(Long userId) {
         Order order = getPendingOrder(userId);
+
+        System.out.println("Completing order with ID: " + order.getId() + " for user ID: " + userId);
 
         if (order.getStatus() == Status.COMPLETED) {
             throw new InvalidStateOfResourceException("Order has already been completed");
@@ -129,7 +141,7 @@ public class OrderService {
             int newQuantity = product.getQuantity() - orderItem.getQuantity();
             if (newQuantity < 0) {
                 throw new InvalidStateOfResourceException(
-                    "There is not enough items Product with id " + product.getId());
+                        "There is not enough items Product with id " + product.getId());
             }
             productService.updateQuantity(product.getId(), newQuantity);
         });
